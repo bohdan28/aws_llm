@@ -21,4 +21,15 @@ output "security_group_id" {
 output "iam_role_name" {
   description = "Name of the IAM role"
   value       = aws_iam_role.ec2_role.name
-} 
+}
+
+data "aws_instances" "asg_instances" {
+  instance_tags = {
+    "aws:autoscaling:groupName" = aws_autoscaling_group.main.name
+  }
+  instance_state_names = ["running"]
+}
+ 
+output "asg_private_ips" {
+  value = data.aws_instances.asg_instances.private_ips
+}

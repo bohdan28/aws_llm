@@ -1,0 +1,42 @@
+---
+- name: Configure Bastion Host as SSH Jump Host
+  hosts: bastion
+  gather_facts: yes
+  
+  vars:
+    private_instances:
+      - name: llm1
+        hostname: "{{ groups['asg'][0] }}"
+        user: ubuntu
+      - name: llm2
+        hostname: "{{ groups['asg'][1] }}"
+        user: ubuntu
+    
+  roles:
+    - role: bastion_ssh_config
+
+- name: Deploy SSH config with bastion and LLM hosts
+  hosts: localhost
+  vars:
+    ssh_user: ubuntu
+    private_key_path: "~/my-llm-key.pem"
+    bastion_ip: "{{ groups['bastion'][0] }}"
+
+    llm_hosts:
+      - name: llm1
+        ip: "{{ groups['asg'][0] }}"
+      - name: llm2
+        ip: "{{ groups['asg'][1] }}"
+
+  tasks:
+    - name: Ensure .ssh directory exists
+      file:
+        path: "{{ ansible_env.HOME }}/.ssh"
+        state: directory
+        mode: '0700'
+
+    - name: Deploy local SSH config
+      template:
+        src: ssh_config.j2
+        dest: "{{ ansible_env.HOME }}/.ssh/config"
+        mode: '0600'

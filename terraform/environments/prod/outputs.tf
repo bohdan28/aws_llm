@@ -22,3 +22,8 @@ output "db_name" {
   description = "Name of the database"
   value       = module.database.db_name
 } 
+
+output "asg_private_ips" {
+  description = "Private IPs of ASG EC2 instances"
+  value       = module.asg.asg_private_ips
+}

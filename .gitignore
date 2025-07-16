@@ -43,3 +43,4 @@ terraform.rc
 .terraform_accessKeys.csv
 terraform/environments/prod/terraform_accessKeys.csv
 my-llm-key.pem
+inventory.ini

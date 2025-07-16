@@ -1,10 +1,10 @@
-data "aws_ami" "amazon_linux_2" {
+data "aws_ami" "ubuntu" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = ["099720109477"] # Canonical
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-*-20.04-amd64-server-*"]
   }
 }
 
@@ -86,8 +86,10 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 # Launch template
 resource "aws_launch_template" "asg" {
   name_prefix   = "${var.environment}-lt"
-  image_id      = data.aws_ami.amazon_linux_2.id
+  image_id      = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
+  key_name      = var.key_name
+
 
   network_interfaces {
     associate_public_ip_address = false
@@ -106,6 +108,9 @@ resource "aws_launch_template" "asg" {
               systemctl start docker
               systemctl enable docker
 
+              # Add SSH public key for access
+              echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDCECAaA33UsU9boTBjGsEBxjkqGRXF9H0ygfElLTiNgq1hqxkPouD8wsw453sC9tRZLwVC/oaSjFwndCRsgBsITyZcr/aYCju3o8z7BbkUsUK1chszf4hiOw8eD7PdndDFc9sj3RzKATRMpymTZ0lksieRCsMdq0dqw3uw09TqCf8+la5zOmZZ3aaSVF9iIulzqD5onzPpfe90ryKuLZWrwdUwt0zsOGR+tjvEqvlU5P12YCQ2Ojob2RILdTywS36/nh4UVaJF9c8To/xd5ckY/J1zH9nqxX9Zfu5GN85DVyM/WijcYYSL2hUsQZ+k8Svr7zjodk6Wz6bOvst6PRM0d27iMFBFW5EV41m6Ld3ok04GeaOPAw01oP7KIaYeOMJxAKhPQ5az1bivSu+kxEyhHkRox0gOZhsJjdwSHxH8gSSLAGRfMU3gRpSTDlZcDJt3mOV+wuagKb0FdEsPrwRA7IxIT/u/X0YqvQ7RorKVfL6EXpUgEHARB5L2Vx/BuXvKnOZkTO0QzbByN/wbu18Ew2JUmak3cIWhY9Z8f6z1hH5hJApsgtLYhQSxzgWrdzEpHeV6ly/7zEZ0QyOtjFgCBHuZPwNM8z09VyzkQfM4WHerETT0mZJuZN3YP/LJ28vLEjeDW/vvXFRkzvSFexOhK2ZrHkWhMeV1Wc2R7RLTfQ== brubl@5CD4195NHD" >> /home/ubuntu/.ssh/authorized_keys
+
               # Install Ollama
               curl -fsSL https://ollama.com/install.sh | sh
               systemctl start ollama
@@ -119,7 +124,7 @@ resource "aws_launch_template" "asg" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_size = 100  # Larger volume for LLM models
+      volume_size = 12
       encrypted   = true
     }
   }
@@ -202,4 +207,4 @@ resource "aws_autoscaling_policy" "memory_policy" {
     }
     target_value = 70.0
   }
-} 
+}

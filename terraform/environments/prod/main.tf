@@ -22,7 +22,12 @@ provider "aws" {
     tags = var.tags
   }
 }
-
+locals {
+  ec2_instance_id_map = zipmap(
+    [for idx, id in module.asg.asg_ids : "instance_${idx}"],
+    module.asg.asg_ids
+  )
+}
 # Networking Module
 module "networking" {
   source = "../../modules/networking"
@@ -84,4 +89,15 @@ module "database" {
   tags                    = var.tags
 
   depends_on = [module.networking, module.asg]
-} 
+}
+
+module "monitoring" {
+  source = "../../modules/monitoring"
+
+  discord_webhook_url   = var.discord_webhook_url
+  ec2_instance_ids      = module.asg.asg_ids
+  rds_instance_id       = module.database.db_instance_id
+  rds_storage_threshold = 10737418240 # 10GB, adjust as needed
+
+  depends_on            = [module.asg, module.database]
+}

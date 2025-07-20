@@ -23,7 +23,17 @@ output "db_name" {
   value       = module.database.db_name
 } 
 
+output "db_instance_id" {
+  description = "ID of the RDS instance"
+  value       = module.database.db_instance_id
+}
+
 output "asg_private_ips" {
   description = "Private IPs of ASG EC2 instances"
   value       = module.asg.asg_private_ips
+}
+
+output "asg_ids" {
+  description = "List of EC2 instance IDs in the Auto Scaling Group"
+  value       = module.asg.asg_ids
 }

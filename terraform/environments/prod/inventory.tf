@@ -27,4 +27,5 @@ resource "local_file" "inventory" {
     db_user=${var.db_username}
     db_password=${var.db_password}
   EOF
+  depends_on = [module.bastion, module.database]
 }

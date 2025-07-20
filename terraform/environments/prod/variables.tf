@@ -95,4 +95,9 @@ variable "tags" {
     Project     = "LLM Infrastructure"
     ManagedBy   = "Terraform"
   }
-} 
+}
+
+variable "discord_webhook_url" {
+  description = "Discord webhook URL for monitoring alerts"
+  type        = string
+}

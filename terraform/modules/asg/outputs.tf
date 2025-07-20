@@ -33,3 +33,8 @@ data "aws_instances" "asg_instances" {
 output "asg_private_ips" {
   value = data.aws_instances.asg_instances.private_ips
 }
+
+output "asg_ids" {
+  description = "List of EC2 instance IDs in the Auto Scaling Group"
+  value       = data.aws_instances.asg_instances.ids
+}

@@ -37,3 +37,8 @@ output "asg_ids" {
   description = "List of EC2 instance IDs in the Auto Scaling Group"
   value       = module.asg.asg_ids
 }
+
+output "grafana_endpoint" {
+  description = "URL of the Grafana instance"
+  value       = module.monitoring_gp.grafana_endpoint
+}juhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh.,,,,,,,,

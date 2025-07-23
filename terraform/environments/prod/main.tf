@@ -87,17 +87,30 @@ module "database" {
   master_password         = var.db_password
   allowed_security_group_id = module.asg.security_group_id
   tags                    = var.tags
+  ssh_allowed_cidr        = var.ssh_allowed_cidr
 
   depends_on = [module.networking, module.asg]
 }
 
-module "monitoring" {
-  source = "../../modules/monitoring"
+module "monitoring_gp" {
+  source = "../../modules/monitoring_gp"
 
-  discord_webhook_url   = var.discord_webhook_url
-  ec2_instance_ids      = module.asg.asg_ids
-  rds_instance_id       = module.database.db_instance_id
-  rds_storage_threshold = 10737418240 # 10GB, adjust as needed
+  environment        = var.environment
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_app_subnet_ids
+  asg_name           = module.asg.asg_name
+  tags               = var.tags
 
-  depends_on            = [module.asg, module.database]
+  depends_on = [module.asg, module.networking]
 }
+
+# module "monitorin_cw" {
+#   source = "../../modules/monitoring_cw"
+
+#   discord_webhook_url   = var.discord_webhook_url
+#   ec2_instance_ids      = module.asg.asg_ids
+#   rds_instance_id       = module.database.db_instance_id
+#   rds_storage_threshold = 10737418240 # 10GB, adjust as needed
+
+#   depends_on            = [module.asg, module.database]
+# }

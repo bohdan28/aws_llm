@@ -21,7 +21,7 @@ output "rds_endpoint" {
 output "db_name" {
   description = "Name of the database"
   value       = module.database.db_name
-} 
+}
 
 output "db_instance_id" {
   description = "ID of the RDS instance"
@@ -41,4 +41,4 @@ output "asg_ids" {
 output "grafana_endpoint" {
   description = "URL of the Grafana instance"
   value       = module.monitoring_gp.grafana_endpoint
-}juhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh.,,,,,,,,
+}

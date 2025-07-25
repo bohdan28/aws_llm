@@ -45,6 +45,7 @@ services:
       # - PGVECTOR_TABLE_NAME="anythingllm_vectors" 
       - WHISPER_PROVIDER=local
       - TTS_PROVIDER=native
+      - SIMPLE_SSO_ENABLED=1
       - PASSWORDMINCHAR=8
     volumes:
       - anythingllm_storage:/app/server/storage

@@ -27,6 +27,31 @@ resource "local_file" "inventory" {
     %{for ip in local.asg_ips~}
     ${ip}
     %{endfor~}
+
+    [llm]
+    llm1
+    llm2
+
+    [llm:vars]
+    aws_secret_access_key=${var.aws_secret_access_key}
+    aws_access_key_id=${var.aws_access_key_id}
+    aws_region=${var.aws_region}
+
   EOF
   depends_on = [module.bastion, module.database]
+}
+
+resource "local_file" "ansible_cfg" {
+  filename   = "${path.module}/../../../ansible/ansible.cfg"
+  content    = <<-EOF
+    [defaults]
+    inventory = inventory.ini
+    private_key_file = ~/my-llm-key.pem
+    host_key_checking = False
+    retry_files_enabled = False
+    timeout = 30
+
+    [ssh_connection]
+    ssh_args = -F /home/brubl/.ssh/config
+  EOF
 }

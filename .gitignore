@@ -44,6 +44,7 @@ terraform.rc
 terraform/environments/prod/terraform_accessKeys.csv
 my-llm-key.pem
 inventory.ini
+ansible.cfg
 anythingllm_storage/
 postgres_data/
 ollama_data/

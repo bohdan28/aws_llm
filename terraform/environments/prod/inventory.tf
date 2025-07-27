@@ -21,6 +21,7 @@ resource "local_file" "inventory" {
     db_name=${module.database.db_name}
     db_user=${var.db_username}
     db_password=${var.db_password}
+    elb_dns_name=${module.asg_alb.alb_dns_name}
 
     [asg]
     %{for ip in local.asg_ips~}

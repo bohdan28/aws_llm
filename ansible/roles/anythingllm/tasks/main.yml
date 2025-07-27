@@ -1,0 +1,77 @@
+#SPDX-License-Identifier: MIT-0
+---
+tasks file for anythingllm
+- name: Add Docker GPG apt Key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  ansible.builtin.apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Update apt and install docker-ce
+  ansible.builtin.apt:
+    name: docker-ce
+    state: latest
+    update_cache: true
+
+- name: Allow running Docker without sudo
+  ansible.builtin.user:
+    name: "{{ ansible_user | default('ubuntu') }}"
+    groups: docker
+    append: true
+
+- name: Restart docker to apply group changes
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+    enabled: true
+
+- name: Ensure Docker service is started and enabled
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Set storage directory path
+  ansible.builtin.set_fact:
+    storage_location: "/home/ubuntu/anythingllm"
+
+- name: Create storage directory
+  ansible.builtin.file:
+    path: "{{ storage_location }}"
+    state: directory
+    mode: '0755'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Create .env file
+  ansible.builtin.template:
+    src: dot_env.j2
+    dest: "{{ storage_location }}/.env"
+    mode: '0644'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Print DATABASE_URL
+  ansible.builtin.debug:
+    msg: 'postgresql://{{  db_user  }}:{{  db_password  }}@{{  endpoint  }}/{{  db_name  }}'
+
+- name: Run AnythingLLM container
+  community.docker.docker_container:
+    name: anythingllm
+    image: mintplexlabs/anythingllm:pg
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "80:3001"
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - "{{ storage_location }}:/app/server/storage"
+      - "{{ storage_location }}/.env:/app/server/.env"
+    env:
+      STORAGE_DIR: "/app/server/storage"
+      DATABASE_URL: 'postgresql://{{  db_user  }}:{{  db_password  }}@{{  endpoint  }}/{{  db_name  }}'

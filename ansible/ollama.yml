@@ -1,0 +1,5 @@
+- hosts: llm
+  become: yes
+  roles:
+    - ollama
+# ansible-playbook -i inventory.ini ollama.yml -u ubuntu --private-key ~/my-llm-key.pem --ssh-common-args='-F ~/.ssh/config'

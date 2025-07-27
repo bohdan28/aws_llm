@@ -1,0 +1,82 @@
+---
+- name: Install unzip and curl (dependencies for AWS CLI)
+  ansible.builtin.apt:
+    name:
+      - unzip
+    state: present
+
+- name: Download AWS CLI installer
+  ansible.builtin.get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp/awscliv2.zip
+    mode: '0644'
+
+- name: Unzip AWS CLI installer
+  ansible.builtin.unarchive:
+    src: /tmp/awscliv2.zip
+    dest: /tmp
+    remote_src: true
+
+- name: Run AWS CLI installer
+  ansible.builtin.command: /tmp/aws/install --update
+
+- name: Ensure AWS CLI is available
+  ansible.builtin.command: aws --version
+  register: aws_cli_version
+  changed_when: false
+
+- name: Download and install Ollama
+  ansible.builtin.shell: |
+    curl -fsSL https://ollama.com/install.sh | sh
+  args:
+    executable: /bin/bash
+
+- name: Create Ollama models directory if it doesn't exist
+  ansible.builtin.file:
+    path: /usr/share/ollama/.ollama/models/
+    state: directory
+    mode: '0755'
+    recurse: true
+
+- name: Print AWS credentials
+  ansible.builtin.debug:
+    msg: "AWS Access Key: {{ aws_access_key_id }}, AWS Secret Key: {{ aws_secret_access_key }}, AWS Region: {{ aws_region }}"
+  
+- name: Download models folder from S3
+  ansible.builtin.command: >
+    aws s3 cp s3://onboarding-task-bucket/models/ /usr/share/ollama/.ollama/models/ --recursive
+  environment:
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+    AWS_DEFAULT_REGION: "{{ aws_region }}"
+
+- name: Set ownership of Ollama models folder to ollama:ollama
+  ansible.builtin.file:
+    path: /usr/share/ollama/.ollama/models/
+    owner: ollama
+    group: ollama
+    recurse: true
+
+- name: Ensure Ollama service is stopped
+  ansible.builtin.systemd:
+    name: ollama
+    state: stopped
+    enabled: false
+
+- name: Add OLLAMA_HOST environment to ollama.service
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/system/ollama.service
+    insertafter: '^\[Service\]'
+    line: 'Environment="OLLAMA_HOST=0.0.0.0:11434"'
+    create: false
+    state: present
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Ensure Ollama service is started
+  ansible.builtin.systemd:
+    name: ollama
+    state: started
+    enabled: true

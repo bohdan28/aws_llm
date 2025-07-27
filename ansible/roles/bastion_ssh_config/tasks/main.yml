@@ -5,27 +5,11 @@
     state: directory
     mode: '0700'
 
-# - name: Start ssh-agent and add SSH key (single task)
-#   shell: |
-#     eval "$(ssh-agent -s)"
-#   environment:
-#     SSH_ASKPASS: /bin/echo  # Avoids interactive prompts
-#   args:
-#     executable: /bin/bash
-
-
 - name: Configure SSH config file
   template:
     src: ssh_config.j2
     dest: "/home/{{ ansible_user }}/.ssh/config"
     mode: '0600'
-
-# - name: Ensure SSH agent is running
-#   service:
-#     name: ssh-agent
-#     state: started
-#     enabled: yes
-#   become: yes
 
 - name: Configure SSH server for forwarding
   lineinfile:

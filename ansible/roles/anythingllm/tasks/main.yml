@@ -75,3 +75,31 @@
     env:
       STORAGE_DIR: "/app/server/storage"
       DATABASE_URL: 'postgresql://{{  db_user  }}:{{  db_password  }}@{{  endpoint  }}/{{  db_name  }}'
+
+- name: Create loki directory
+  ansible.builtin.file:
+    path: "/home/ubuntu/loki"
+    state: directory
+    mode: '0755'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Create loki-config.yaml file
+  ansible.builtin.template:
+    src: loki-config.j2
+    dest: "/home/ubuntu/loki/loki-config.yaml"
+    mode: '0644'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Run loki container
+  community.docker.docker_container:
+    name: loki
+    image: grafana/loki:3.4.1
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - "/home/ubuntu/loki/:/mnt/config/"
+    command: "--config.file=/mnt/config/loki-config.yaml"

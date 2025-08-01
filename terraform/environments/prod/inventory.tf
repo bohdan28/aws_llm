@@ -3,11 +3,15 @@ data "aws_instances" "asg" {
     "Environment" = var.environment
     "Name"        = "${var.environment}-asg-instance"
   }
+
+  depends_on = [ module.asg ]
 }
 
 locals {
   bastion_ip = module.bastion.bastion_public_ip
-  asg_ips    = data.aws_instances.asg.private_ips
+  asg_ips    = data.aws_instances.asg.private_ips # module.asg.asg_private_ips
+
+  depends_on = [module.bastion, module.asg]
 }
 
 resource "local_file" "inventory" {

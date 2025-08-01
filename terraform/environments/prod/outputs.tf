@@ -42,3 +42,13 @@ output "grafana_endpoint" {
   description = "URL of the Grafana instance"
   value       = module.monitoring_gp.grafana_endpoint
 }
+
+output "alb_dns_name" {
+  description = "DNS name of the Application Load Balancer"
+  value       = module.asg_alb.alb_dns_name
+}
+
+output "target_group_arn" {
+  description = "List of target group ARNs for the ASG"
+  value       = module.asg_alb.target_group_arn
+}

@@ -49,6 +49,7 @@ module "bastion" {
   vpc_id       = module.networking.vpc_id
   subnet_id    = module.networking.public_subnet_ids[0]
   allowed_cidr = var.ssh_allowed_cidr
+  instance_type= var.bastion_instance_type
   key_name     = var.key_name
   tags         = var.tags
 
@@ -103,9 +104,8 @@ module "database" {
   master_password           = var.db_password
   allowed_security_group_id = module.asg.security_group_id
   tags                      = var.tags
-  ssh_allowed_cidr          = var.ssh_allowed_cidr
 
-  depends_on = [module.networking, module.asg]
+  depends_on = [module.networking]
 }
 
 module "monitoring_gp" {
@@ -125,6 +125,10 @@ module "monitoring_gp" {
 
 #   discord_webhook_url   = var.discord_webhook_url
 #   ec2_instance_ids      = module.asg.asg_ids
+#   instance_map = {
+#     for instance in module.asg.asg_ids :
+#     instance.tags["Name"] => instance.id
+#   }
 #   rds_instance_id       = module.database.db_instance_id
 #   rds_storage_threshold = 10737418240 # 10GB, adjust as needed
 

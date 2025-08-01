@@ -39,6 +39,11 @@ variable "asg_instance_type" {
   default     = "t3.xlarge"
 }
 
+variable "bastion_instance_type" {
+  description = "Instance type for ASG instances"
+  type        = string
+  default     = "t3.xlarge"
+}
 variable "asg_min_size" {
   description = "Minimum size of the ASG"
   type        = number
@@ -100,4 +105,16 @@ variable "tags" {
 variable "discord_webhook_url" {
   description = "Discord webhook URL for monitoring alerts"
   type        = string
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS secret access key"
+  type        = string
+  sensitive   = true
+}
+
+variable "aws_access_key_id" {
+  description = "AWS access key ID"
+  type        = string
+  sensitive   = true
 }

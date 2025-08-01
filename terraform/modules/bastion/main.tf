@@ -18,9 +18,17 @@ resource "aws_security_group" "bastion" {
     protocol    = "tcp"
     cidr_blocks = [var.allowed_cidr]
   }
+
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 3100
+    to_port     = 3100
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -47,7 +55,7 @@ resource "aws_security_group" "bastion" {
 
 resource "aws_instance" "bastion" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.medium"
+  instance_type = var.instance_type
   subnet_id     = var.subnet_id
   key_name      = var.key_name
 

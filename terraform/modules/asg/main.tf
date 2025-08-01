@@ -69,6 +69,12 @@ resource "aws_iam_role" "ec2_role" {
   tags = var.tags
 }
 
+resource "aws_iam_policy_attachment" "cloudwatch_agent_attach" {
+  name       = "cloudwatch-agent-policy"
+  roles      = [aws_iam_role.ec2_role.name]
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 # IAM instance profile
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "${var.environment}-ec2-profile"
@@ -102,7 +108,7 @@ resource "aws_launch_template" "asg" {
   block_device_mappings {
     device_name = "/dev/sda1"
     ebs {
-      volume_size = 12
+      volume_size = 20
       encrypted   = true
     }
   }
@@ -125,7 +131,6 @@ resource "aws_autoscaling_group" "main" {
   desired_capacity    = var.desired_capacity
   max_size           = var.max_size
   min_size           = var.min_size
-  target_group_arns  = []  # Add if using load balancer
   vpc_zone_identifier = var.subnet_ids
 
   launch_template {

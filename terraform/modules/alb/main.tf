@@ -61,10 +61,3 @@ resource "aws_autoscaling_attachment" "asg_alb_attachment" {
   autoscaling_group_name = var.asg_name
   lb_target_group_arn   = aws_lb_target_group.llm_target_group.arn
 }
-
-resource "aws_lb_target_group_attachment" "instance_attachment" {
-  count            = length(var.instance_ids)
-  target_group_arn = aws_lb_target_group.llm_target_group.arn
-  target_id        = var.instance_ids[count.index]
-  port             = var.target_group_port
-}

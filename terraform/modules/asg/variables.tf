@@ -51,4 +51,10 @@ variable "tags" {
   description = "Tags to be applied to all resources"
   type        = map(string)
   default     = {}
-} 
+}
+
+variable "target_group_arns" {
+  description = "List of target group ARNs for the ASG"
+  type        = list(string)
+  default     = []
+}

@@ -1,0 +1,47 @@
+---
+- name: Get Docker inspect output for container
+  ansible.builtin.command: docker inspect {{ container_name }}
+  register: docker_inspect
+
+- name: Extract LogPath from inspect output
+  ansible.builtin.set_fact:
+    container_log_path: "{{ docker_inspect.stdout | regex_search('\"LogPath\":\\s+\"([^\"]+\\.log)\"', '\\1') | first }}"
+
+- name: Print the container log path
+  ansible.builtin.debug:
+    msg: "container LogPath is: {{ container_log_path }}"
+
+- name: Trim filename from LogPath to get folder path
+  ansible.builtin.set_fact:
+    container_log_dir: "{{ container_log_path | regex_replace('/[^/]+$', '') }}"
+
+- name: Print the container log_folder path
+  ansible.builtin.debug:
+    msg: "container LogPath folder is: {{ container_log_dir }}"
+
+- name: Create promtail directory
+  ansible.builtin.file:
+    path: "/home/ubuntu/promtail"
+    state: directory
+    mode: '0755'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Create promtail-config.yaml file
+  ansible.builtin.template:
+    src: promtail-config.j2
+    dest: "/home/ubuntu/promtail/promtail-config.yaml"
+    mode: '0644'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Run promtail container
+  community.docker.docker_container:
+    name: promtail
+    image: grafana/promtail:3.4.1
+    state: started
+    restart_policy: unless-stopped
+    volumes:
+      - "{{ container_log_dir }}:{{ container_log_dir }}"
+      - "/home/ubuntu/promtail/:/mnt/config/"
+    command: "--config.file=/mnt/config/promtail-config.yaml"

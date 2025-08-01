@@ -1,0 +1,11 @@
+---
+- name: Configure Promtail
+  hosts: llm
+  gather_facts: false
+  
+  vars:
+    container_name: ollama
+    host_name: "{{ inventory_hostname }}"
+    bastion_ip: "{{ groups['bastion'][0] }}"
+  roles: 
+    - role: promtail

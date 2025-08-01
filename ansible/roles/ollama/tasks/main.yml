@@ -1,5 +1,39 @@
 ---
-- name: Install unzip and curl (dependencies for AWS CLI)
+- name: Add Docker GPG apt Key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  ansible.builtin.apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Update apt and install docker-ce
+  ansible.builtin.apt:
+    name: docker-ce
+    state: latest
+    update_cache: true
+
+- name: Allow running Docker without sudo
+  ansible.builtin.user:
+    name: "{{ ansible_user | default('ubuntu') }}"
+    groups: docker
+    append: true
+
+- name: Restart docker to apply group changes
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+    enabled: true
+
+- name: Ensure Docker service is started and enabled
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Install unzip and curl
   ansible.builtin.apt:
     name:
       - unzip
@@ -25,11 +59,60 @@
   register: aws_cli_version
   changed_when: false
 
-- name: Download and install Ollama
-  ansible.builtin.shell: |
-    curl -fsSL https://ollama.com/install.sh | sh
-  args:
-    executable: /bin/bash
+- name: Download CloudWatch Agent .deb package
+  ansible.builtin.get_url:
+    url: https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+    dest: /tmp/amazon-cloudwatch-agent.deb
+
+- name: Install CloudWatch Agent (Ubuntu)
+  ansible.builtin.apt:
+    deb: /tmp/amazon-cloudwatch-agent.deb
+    state: present
+
+- name: Create CloudWatch Agent config file
+  ansible.builtin.copy:
+    dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    content: |
+      {
+        "metrics": {
+          "metrics_collected": {
+            "mem": {
+              "measurement": [
+                "mem_used_percent"
+              ],
+              "metrics_collection_interval": 60
+            },
+            "disk": {
+              "measurement": [
+                "used_percent"
+              ],
+              "resources": [
+                "/"
+              ],
+              "metrics_collection_interval": 60
+            }
+          },
+          "append_dimensions": {
+            "InstanceId": "${aws:InstanceId}"
+          },
+          "namespace": "CWAgent"
+        }
+      }
+
+- name: Start CloudWatch Agent
+  ansible.builtin.command: >
+    /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl
+    -a fetch-config
+    -m ec2
+    -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    -s
+
+###############################################################
+# - name: Download and install Ollama
+#   ansible.builtin.shell: |
+#     curl -fsSL https://ollama.com/install.sh | sh
+#   args:
+#     executable: /bin/bash
 
 - name: Create Ollama models directory if it doesn't exist
   ansible.builtin.file:
@@ -50,33 +133,44 @@
     AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
     AWS_DEFAULT_REGION: "{{ aws_region }}"
 
-- name: Set ownership of Ollama models folder to ollama:ollama
+- name: Set ownership of Ollama models folder to ubuntu:docker
   ansible.builtin.file:
     path: /usr/share/ollama/.ollama/models/
-    owner: ollama
-    group: ollama
+    owner: ubuntu
+    group: docker
     recurse: true
 
-- name: Ensure Ollama service is stopped
-  ansible.builtin.systemd:
+# - name: Ensure Ollama service is stopped
+#   ansible.builtin.systemd:
+#     name: ollama
+#     state: stopped
+#     enabled: false
+
+# - name: Add OLLAMA_HOST environment to ollama.service
+#   ansible.builtin.lineinfile:
+#     path: /etc/systemd/system/ollama.service
+#     insertafter: '^\[Service\]'
+#     line: 'Environment="OLLAMA_HOST=0.0.0.0:11434"'
+#     create: false
+#     state: present
+
+# - name: Reload systemd daemon
+#   ansible.builtin.systemd:
+#     daemon_reload: true
+
+# - name: Ensure Ollama service is started
+#   ansible.builtin.systemd:
+#     name: ollama
+#     state: started
+#     enabled: true
+
+- name: Run ollama container
+  community.docker.docker_container:
     name: ollama
-    state: stopped
-    enabled: false
-
-- name: Add OLLAMA_HOST environment to ollama.service
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/system/ollama.service
-    insertafter: '^\[Service\]'
-    line: 'Environment="OLLAMA_HOST=0.0.0.0:11434"'
-    create: false
-    state: present
-
-- name: Reload systemd daemon
-  ansible.builtin.systemd:
-    daemon_reload: true
-
-- name: Ensure Ollama service is started
-  ansible.builtin.systemd:
-    name: ollama
+    image: alpine/ollama
     state: started
-    enabled: true
+    restart_policy: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - "/usr/share/ollama/.ollama/models:/root/.ollama/models"

@@ -52,7 +52,7 @@ resource "aws_lambda_permission" "allow_sns" {
 # CloudWatch Alarms for EC2
     # [llm]-[test]-[ec2]-[high]-[cpu]
 resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
-  for_each            = toset(var.ec2_instance_ids)
+  for_each            = var.instance_map
   alarm_name          = "EC2-${each.key}-High-CPU"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
@@ -63,14 +63,14 @@ resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
   threshold           = 80
   alarm_description   = "EC2 instance ${each.key} high CPU utilization > 5mins."
   dimensions = {
-    InstanceId = each.key
+    InstanceId = each.value
   }
   alarm_actions = [aws_sns_topic.discord_alerts.arn]
 }
 
     # [llm]-[test]-[ec2]-[low]-[cpu]
 resource "aws_cloudwatch_metric_alarm" "ec2_cpu_low" {
-  for_each            = toset(var.ec2_instance_ids)
+  for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[low]-[cpu]-${each.key}"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
@@ -88,7 +88,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_cpu_low" {
 
     # [llm]-[test]-[ec2]-[low]-[memory]
 resource "aws_cloudwatch_metric_alarm" "ec2_memory_low" {
-  for_each            = toset(var.ec2_instance_ids)
+  for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[low]-[memory]-${each.key}"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
@@ -96,17 +96,17 @@ resource "aws_cloudwatch_metric_alarm" "ec2_memory_low" {
   namespace           = "CWAgent"
   period              = 300
   statistic           = "Average"
-  threshold           = 30
+  threshold           = 80
   alarm_description   = "EC2 ${each.key} memory usage is very low."
   dimensions = {
-    InstanceId = each.key
+    InstanceId = each.value
   }
   alarm_actions = [aws_sns_topic.discord_alerts.arn]
 }
 
     # [llm]-[test]-[ec2]-[high]-[memory]
 resource "aws_cloudwatch_metric_alarm" "ec2_memory_high" {
-  for_each            = toset(var.ec2_instance_ids)
+  for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[high]-[memory]-${each.key}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
@@ -124,7 +124,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_memory_high" {
 
     # [llm]-[test]-[ec2]-[low]-[disk-space]
 resource "aws_cloudwatch_metric_alarm" "ec2_disk_low" {
-  for_each            = toset(var.ec2_instance_ids)
+  for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[low]-[disk-space]-${each.key}"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = 1
@@ -132,7 +132,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_disk_low" {
   namespace           = "CWAgent"
   period              = 300
   statistic           = "Average"
-  threshold           = 20
+  threshold           = 80
   alarm_description   = "EC2 ${each.key} disk usage very low (unusual)."
   dimensions = {
     InstanceId = each.key
@@ -142,7 +142,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_disk_low" {
 
     # [llm]-[test]-[ec2]-[high]-[disk-space]
 resource "aws_cloudwatch_metric_alarm" "ec2_disk_high" {
-  for_each            = toset(var.ec2_instance_ids)
+  for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[high]-[disk-space]-${each.key}"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1

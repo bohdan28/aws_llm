@@ -19,3 +19,9 @@ variable "rds_storage_threshold" {
   type        = number
   default     = 10737418240 # 10GB
 }
+
+variable "instance_map" {
+  description = "Map of EC2 instance names to their IDs"
+  type        = map(string)
+  default     = {}
+}

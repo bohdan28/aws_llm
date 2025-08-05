@@ -4,7 +4,7 @@ data "aws_instances" "asg" {
     "Name"        = "${var.environment}-asg-instance"
   }
 
-  depends_on = [ module.asg ]
+  depends_on = [module.asg]
 }
 
 locals {
@@ -46,8 +46,8 @@ resource "local_file" "inventory" {
 }
 
 resource "local_file" "ansible_cfg" {
-  filename   = "${path.module}/../../../ansible/ansible.cfg"
-  content    = <<-EOF
+  filename = "${path.module}/../../../ansible/ansible.cfg"
+  content  = <<-EOF
     [defaults]
     inventory = inventory.ini
     private_key_file = ~/my-llm-key.pem

@@ -59,5 +59,5 @@ resource "aws_lb_listener" "llm_lb_listener" {
 
 resource "aws_autoscaling_attachment" "asg_alb_attachment" {
   autoscaling_group_name = var.asg_name
-  lb_target_group_arn   = aws_lb_target_group.llm_target_group.arn
+  lb_target_group_arn    = aws_lb_target_group.llm_target_group.arn
 }

@@ -29,6 +29,13 @@ resource "aws_security_group" "asg" {
     cidr_blocks = ["10.0.0.0/16"]
   }
 
+  ingress {
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -91,7 +98,7 @@ resource "aws_launch_template" "asg" {
 
   network_interfaces {
     associate_public_ip_address = false
-    security_groups            = [aws_security_group.asg.id]
+    security_groups             = [aws_security_group.asg.id]
   }
 
   iam_instance_profile {
@@ -129,8 +136,8 @@ resource "aws_launch_template" "asg" {
 resource "aws_autoscaling_group" "main" {
   name                = "${var.environment}-asg"
   desired_capacity    = var.desired_capacity
-  max_size           = var.max_size
-  min_size           = var.min_size
+  max_size            = var.max_size
+  min_size            = var.min_size
   vpc_zone_identifier = var.subnet_ids
 
   launch_template {
@@ -162,7 +169,7 @@ resource "aws_autoscaling_group" "main" {
 resource "aws_autoscaling_policy" "cpu_policy" {
   name                   = "${var.environment}-cpu-policy"
   autoscaling_group_name = aws_autoscaling_group.main.name
-  policy_type           = "TargetTrackingScaling"
+  policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration {
     predefined_metric_specification {
@@ -176,7 +183,7 @@ resource "aws_autoscaling_policy" "cpu_policy" {
 resource "aws_autoscaling_policy" "memory_policy" {
   name                   = "${var.environment}-memory-policy"
   autoscaling_group_name = aws_autoscaling_group.main.name
-  policy_type           = "TargetTrackingScaling"
+  policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration {
     customized_metric_specification {

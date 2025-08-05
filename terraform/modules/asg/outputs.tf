@@ -29,7 +29,7 @@ data "aws_instances" "asg_instances" {
   }
   instance_state_names = ["running"]
 }
- 
+
 output "asg_private_ips" {
   value = data.aws_instances.asg_instances.private_ips
 }

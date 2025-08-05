@@ -19,10 +19,10 @@ resource "aws_security_group" "rds" {
 
   # Allow PostgreSQL access from ASG security group
   ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    cidr_blocks     = ["10.0.0.0/16"]
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
   egress {
@@ -50,9 +50,9 @@ resource "aws_db_instance" "main" {
   identifier = "${var.environment}-postgres"
 
   engine         = "postgres"
-  engine_version = "14"  
+  engine_version = "14"
 
-  instance_class = var.instance_class
+  instance_class    = var.instance_class
   allocated_storage = var.allocated_storage
   storage_type      = "gp3"
 
@@ -65,13 +65,13 @@ resource "aws_db_instance" "main" {
   vpc_security_group_ids = [aws_security_group.rds.id]
 
   backup_retention_period = var.backup_retention_period
-  backup_window          = "03:00-04:00"
-  maintenance_window     = "Mon:04:00-Mon:05:00"
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "Mon:04:00-Mon:05:00"
 
   auto_minor_version_upgrade = true
-  deletion_protection       = false
-  skip_final_snapshot      = true
-  final_snapshot_identifier = "${var.environment}-postgres-final-snapshot"
+  deletion_protection        = false
+  skip_final_snapshot        = true
+  final_snapshot_identifier  = "${var.environment}-postgres-final-snapshot"
 
   tags = merge(
     {

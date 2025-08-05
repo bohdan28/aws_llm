@@ -16,7 +16,7 @@ variable "subnet_ids" {
 variable "instance_type" {
   description = "EC2 instance type for ASG instances"
   type        = string
-  default     = "t3.xlarge"  # Recommended for running LLMs
+  default     = "t3.xlarge" # Recommended for running LLMs
 }
 
 variable "min_size" {

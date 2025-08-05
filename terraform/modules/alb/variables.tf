@@ -47,5 +47,5 @@ variable "alb_security_group_id" {
 variable "instance_ids" {
   description = "List of instance IDs to attach to the target group"
   type        = list(string)
-  default     = []  # Empty by default since you're using ASG
+  default     = [] # Empty by default since you're using ASG
 }

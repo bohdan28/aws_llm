@@ -45,13 +45,13 @@ module "networking" {
 module "bastion" {
   source = "../../modules/bastion"
 
-  environment  = var.environment
-  vpc_id       = module.networking.vpc_id
-  subnet_id    = module.networking.public_subnet_ids[0]
-  allowed_cidr = var.ssh_allowed_cidr
-  instance_type= var.bastion_instance_type
-  key_name     = var.key_name
-  tags         = var.tags
+  environment   = var.environment
+  vpc_id        = module.networking.vpc_id
+  subnet_id     = module.networking.public_subnet_ids[0]
+  allowed_cidr  = var.ssh_allowed_cidr
+  instance_type = var.bastion_instance_type
+  key_name      = var.key_name
+  tags          = var.tags
 
   depends_on = [module.networking]
 }
@@ -81,7 +81,7 @@ module "asg_alb" {
   environment       = var.environment
   vpc_id            = module.networking.vpc_id
   subnet_ids        = module.networking.private_app_subnet_ids
-  instance_ids     = module.asg.asg_ids
+  instance_ids      = module.asg.asg_ids
   target_group_port = 11434
   asg_name          = module.asg.asg_name
   internal          = true

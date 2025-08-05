@@ -50,7 +50,7 @@ resource "aws_lambda_permission" "allow_sns" {
 }
 
 # CloudWatch Alarms for EC2
-    # [llm]-[test]-[ec2]-[high]-[cpu]
+# [llm]-[test]-[ec2]-[high]-[cpu]
 resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
   for_each            = var.instance_map
   alarm_name          = "EC2-${each.key}-High-CPU"
@@ -68,7 +68,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
   alarm_actions = [aws_sns_topic.discord_alerts.arn]
 }
 
-    # [llm]-[test]-[ec2]-[low]-[cpu]
+# [llm]-[test]-[ec2]-[low]-[cpu]
 resource "aws_cloudwatch_metric_alarm" "ec2_cpu_low" {
   for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[low]-[cpu]-${each.key}"
@@ -86,7 +86,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_cpu_low" {
   alarm_actions = [aws_sns_topic.discord_alerts.arn]
 }
 
-    # [llm]-[test]-[ec2]-[low]-[memory]
+# [llm]-[test]-[ec2]-[low]-[memory]
 resource "aws_cloudwatch_metric_alarm" "ec2_memory_low" {
   for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[low]-[memory]-${each.key}"
@@ -104,7 +104,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_memory_low" {
   alarm_actions = [aws_sns_topic.discord_alerts.arn]
 }
 
-    # [llm]-[test]-[ec2]-[high]-[memory]
+# [llm]-[test]-[ec2]-[high]-[memory]
 resource "aws_cloudwatch_metric_alarm" "ec2_memory_high" {
   for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[high]-[memory]-${each.key}"
@@ -122,7 +122,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_memory_high" {
   alarm_actions = [aws_sns_topic.discord_alerts.arn]
 }
 
-    # [llm]-[test]-[ec2]-[low]-[disk-space]
+# [llm]-[test]-[ec2]-[low]-[disk-space]
 resource "aws_cloudwatch_metric_alarm" "ec2_disk_low" {
   for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[low]-[disk-space]-${each.key}"
@@ -140,7 +140,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_disk_low" {
   alarm_actions = [aws_sns_topic.discord_alerts.arn]
 }
 
-    # [llm]-[test]-[ec2]-[high]-[disk-space]
+# [llm]-[test]-[ec2]-[high]-[disk-space]
 resource "aws_cloudwatch_metric_alarm" "ec2_disk_high" {
   for_each            = var.instance_map
   alarm_name          = "[llm]-[test]-[ec2]-[high]-[disk-space]-${each.key}"
@@ -200,7 +200,7 @@ resource "aws_cloudwatch_metric_alarm" "rds_memory_high" {
   namespace           = "AWS/RDS"
   period              = 300
   statistic           = "Average"
-  threshold           = 200000000  # ~200 MB
+  threshold           = 200000000 # ~200 MB
   alarm_description   = "RDS instance ${var.rds_instance_id} has high memory usage (low freeable memory)."
   dimensions = {
     DBInstanceIdentifier = var.rds_instance_id

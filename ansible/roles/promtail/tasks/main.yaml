@@ -45,3 +45,12 @@
       - "{{ container_log_dir }}:{{ container_log_dir }}"
       - "/home/ubuntu/promtail/:/mnt/config/"
     command: "--config.file=/mnt/config/promtail-config.yaml"
+
+- name: Run node-exporter container
+  community.docker.docker_container:
+    name: node-exporter
+    image: quay.io/prometheus/node-exporter
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "9100:9100"

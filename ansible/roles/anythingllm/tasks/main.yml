@@ -103,3 +103,30 @@
     volumes:
       - "/home/ubuntu/loki/:/mnt/config/"
     command: "--config.file=/mnt/config/loki-config.yaml"
+
+- name: Create prometheus directory
+  ansible.builtin.file:
+    path: "/home/ubuntu/prometheus"
+    state: directory
+    mode: '0755'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Create prometheus.yml file
+  ansible.builtin.template:
+    src: prometheus.j2
+    dest: "/home/ubuntu/prometheus/prometheus.yml"
+    mode: '0644'
+    owner: "ubuntu"
+    group: "ubuntu"
+
+- name: Run prometheus container
+  community.docker.docker_container:
+    name: prometheus
+    image: prom/prometheus
+    state: started
+    restart_policy: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - "/home/ubuntu/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"

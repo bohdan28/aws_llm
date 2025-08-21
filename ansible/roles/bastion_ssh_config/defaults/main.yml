@@ -1,0 +1,18 @@
+---
+# Default variables for bastion SSH configuration
+private_instances:
+  - name: private-instance-1
+    hostname: 10.0.1.10
+    user: ec2-user
+  - name: private-instance-2
+    hostname: 10.0.1.11
+    user: ec2-user
+
+# SSH key path for private instances
+private_key_path: ~/.ssh/private-key.pem
+
+# Default SSH port
+ssh_port: 22
+
+# Bastion specific settings
+bastion_user: ubuntu 

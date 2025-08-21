@@ -16,8 +16,7 @@ crash.*.log
 *.tfvars
 *.tfvars.json
 
-# Ignore override files as they are usually used to override resources locally and so
-# are not checked in
+
 override.tf
 override.tf.json
 *_override.tf
@@ -35,3 +34,17 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+.terraform.lock.hcl
+
+.env
+.env.*
+
+*.csv
+.terraform_accessKeys.csv
+terraform/environments/prod/terraform_accessKeys.csv
+my-llm-key.pem
+inventory.ini
+ansible.cfg
+anythingllm_storage/
+postgres_data/
+ollama_data/

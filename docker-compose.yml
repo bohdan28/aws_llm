@@ -1,0 +1,67 @@
+services: 
+# postgresql://anythingllm:anythingllm_pass@postgres:5432/anythingllm_db
+  postgres:
+    image: pgvector/pgvector:0.8.0-pg16
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: anythingllm
+      POSTGRES_PASSWORD: anythingllm_pass
+      POSTGRES_DB: anythingllm_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  anythingllm:
+    image: mintplexlabs/anythingllm:pg
+    container_name: anythingllm
+    ports:
+      - "3001:3001"
+    cap_add:
+      - SYS_ADMIN
+    environment:
+    # Adjust for your environment
+      - DATABASE_URL="postgresql://anythingllm:anythingllm_pass@postgres:5432/anythingllm_db"
+      - STORAGE_DIR=/app/server/storage
+      - JWT_SECRET="make this a large list of random numbers and letters 20+"
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_PATH=http://ollama:11434
+      - OLLAMA_MODEL_PREF=llama2:latest
+      - OLLAMA_MODEL_TOKEN_LIMIT=4096
+      - EMBEDDING_ENGINE=ollama
+      - EMBEDDING_BASE_PATH=http://ollama:11434
+      - EMBEDDING_MODEL_PREF=nomic-embed-text:latest
+      - EMBEDDING_MODEL_MAX_CHUNK_LENGTH=8192
+      - VECTOR_DB="pgvector"
+      - PGVECTOR_CONNECTION_STRING="postgresql://anythingllm:anythingllm_pass@postgres:5432/anythingllm_db"
+      - PGVECTOR_TABLE_NAME="anythingllm_vectors" 
+      - WHISPER_PROVIDER=local
+      - TTS_PROVIDER=native
+      - PASSWORDMINCHAR=8
+    volumes:
+      - anythingllm_storage:/app/server/storage
+      # - ./anythingllm_storage/.env:/app/server/.env
+    restart: always
+    depends_on:
+      - postgres
+      - ollama
+
+volumes:
+  anythingllm_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/brubl/aws_llm/anythingllm_storage
+  postgres_data:
+  ollama_data:

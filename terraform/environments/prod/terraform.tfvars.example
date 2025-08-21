@@ -1,0 +1,41 @@
+# AWS Region
+aws_region = "eu-central-1"
+
+# Environment
+environment = "prod"
+
+# VPC Configuration
+vpc_cidr           = "10.0.0.0/16"
+availability_zones = ["eu-central-1a", "eu-central-1b"]
+
+# SSH Access
+ssh_allowed_cidr = "123.456.78.90/32" # Replace with your IP
+key_name         = "my-llm-key"
+
+# Bastion Host Configuration
+bastion_instance_type = "t3.small" # t2.medium t3.xlarge
+
+# ASG Configuration
+asg_instance_type    = "t3.large" # g4ad.xlarge t2.micro 
+asg_min_size         = 1
+asg_max_size         = 3
+asg_desired_capacity = 2
+
+aws_secret_access_key = "your_key"
+aws_access_key_id = "your_id"
+
+# RDS Configuration
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
+db_name              = "llmdb"
+db_username          = "dbadmin"           # Replace with your desired username
+db_password          = "YOUR_PASSWORD1224" # Replace with a secure password
+
+# Tags
+tags = {
+  Project     = "LLM Infrastructure"
+  ManagedBy   = "Terraform"
+  Environment = "prod"
+}
+
+discord_webhook_url = "https://discordapp.com/api/webhooks/your_webhook"

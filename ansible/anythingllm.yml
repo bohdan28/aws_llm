@@ -1,0 +1,7 @@
+---
+- name: Configure AnythingLLM
+  hosts: bastion
+  gather_facts: false
+  become: true
+  roles:
+    - anythingllm

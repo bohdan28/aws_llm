@@ -1,0 +1,24 @@
+---
+- name: Ensure SSH directory exists
+  file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    state: directory
+    mode: '0700'
+
+- name: Configure SSH config file
+  template:
+    src: ssh_config.j2
+    dest: "/home/{{ ansible_user }}/.ssh/config"
+    mode: '0600'
+
+- name: Configure SSH server for forwarding
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - { regexp: '^AllowTcpForwarding', line: 'AllowTcpForwarding yes' }
+    - { regexp: '^GatewayPorts', line: 'GatewayPorts yes' }
+  become: yes
+  notify: restart sshd
